@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: volunteer-connect-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: HOST
+        value: 0.0.0.0
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOW_VERCEL_PREVIEWS
+        value: true
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: PGLITE_DATA_DIR
+        value: ./server/.pglite

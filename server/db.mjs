@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const schemaPath = path.join(__dirname, "schema.sql");
 const seedPath = path.join(__dirname, "prototype-db.json");
-const dbPath = path.join(__dirname, ".pglite");
+const dbPath = process.env.PGLITE_DATA_DIR || path.join(__dirname, ".pglite");
 
 let dbPromise;
 

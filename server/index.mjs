@@ -26,17 +26,56 @@ import {
 const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server, path: "/ws" });
-const PORT = 4177;
+const PORT = Number(process.env.PORT || 4177);
+const HOST = process.env.HOST || "0.0.0.0";
 const JWT_SECRET = process.env.JWT_SECRET || "volunteer-connect-prototype-secret";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distDir = path.resolve(__dirname, "../dist");
 const distIndexFile = path.join(distDir, "index.html");
 const hasBuiltFrontend = existsSync(distIndexFile);
+const allowVercelPreviews = process.env.ALLOW_VERCEL_PREVIEWS !== "false";
+const allowedOrigins = new Set(
+  [
+    "http://127.0.0.1:4175",
+    "http://localhost:4175",
+    "http://127.0.0.1:4177",
+    "http://localhost:4177",
+    ...(process.env.ALLOWED_ORIGINS ?? "")
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+  ].map((origin) => origin.replace(/\/$/, ""))
+);
+
+function isAllowedOrigin(origin) {
+  if (!origin) {
+    return true;
+  }
+
+  const normalizedOrigin = origin.replace(/\/$/, "");
+  if (allowedOrigins.has(normalizedOrigin)) {
+    return true;
+  }
+
+  try {
+    const { hostname } = new URL(normalizedOrigin);
+    return allowVercelPreviews && hostname.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+}
 
 app.use(
   cors({
-    origin: ["http://127.0.0.1:4175", "http://localhost:4175", "http://127.0.0.1:4177"],
+    origin(origin, callback) {
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`Origin ${origin ?? "unknown"} is not allowed by CORS.`));
+    },
     credentials: true
   })
 );
@@ -109,7 +148,12 @@ function adminRequired(req, res, next) {
 }
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, frontendReady: hasBuiltFrontend });
+  res.json({
+    ok: true,
+    frontendReady: hasBuiltFrontend,
+    websocketReady: true,
+    deployment: hasBuiltFrontend ? "combined" : "api-only"
+  });
 });
 
 app.post("/api/auth/register", async (req, res) => {
@@ -280,8 +324,8 @@ app.use((req, res, next) => {
     return;
   }
 
-  res.status(503).send(
-    "Frontend build is not ready yet. Run `npm run build` or start the combined server with `npm run api`."
+  res.status(200).send(
+    "Volunteer Connect API is running. The frontend is deployed separately. Check /api/health for service status."
   );
 });
 
@@ -355,6 +399,6 @@ wss.on("connection", async (socket, request) => {
   });
 });
 
-server.listen(PORT, "127.0.0.1", () => {
-  console.log(`Volunteer Connect backend running at http://127.0.0.1:${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`Volunteer Connect backend running at http://${HOST}:${PORT}`);
 });

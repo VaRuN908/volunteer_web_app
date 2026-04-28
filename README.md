@@ -1,68 +1,110 @@
 # Volunteer Connect Prototype
 
-## What this prototype includes
+## Current architecture
 
-- React + TypeScript web-app
-- Node + Express backend
-- PostgreSQL-compatible embedded database using `@electric-sql/pglite`
-- JWT-based auth
-- Signup, login, logout
-- Explore dashboard with live matching scores
-- Realtime chat using WebSockets
-- Editable profile with backend persistence
-- Admin/community management dashboard
-- Survey NLP parsing and volunteer-task matching
+- Frontend: React + TypeScript + Vite
+- Frontend hosting: Vercel
+- Backend: Node + Express + WebSocket
+- Backend hosting: Render Web Service
+- Database: local `PGlite` file storage for prototype data
 
-## Run the prototype
+## What works in the prototype
 
-Open one terminal in:
+- signup, login, logout
+- explore dashboard with match scoring
+- chat API + WebSocket updates
+- editable profile with persistence
+- admin/community/task/survey flows
+- NLP-style need extraction and score-based matching
 
-`C:\varun\D_Drive\app-ceration\volunteer-app`
+## Local development
 
-Start the full app on one URL:
+### Option 1: full local app on one URL
 
 ```bash
 npm run api
 ```
 
-Then open:
+Open:
 
-`http://127.0.0.1:4177`
+- [http://127.0.0.1:4177](http://127.0.0.1:4177)
 
-For frontend-only development, you can still use:
+### Option 2: frontend dev server + local backend
+
+Terminal 1:
+
+```bash
+npm run api:server
+```
+
+Terminal 2:
 
 ```bash
 npm run dev
 ```
 
-and open:
+Open:
 
-`http://127.0.0.1:4175/login`
+- [http://127.0.0.1:4175/login](http://127.0.0.1:4175/login)
 
-## Demo accounts
+## Vercel frontend setup
 
-Admin account:
+Deploy this repo as a Vite frontend on Vercel.
+
+Set these environment variables in Vercel:
+
+- `VITE_API_BASE=https://your-render-service.onrender.com/api`
+- `VITE_WS_BASE=wss://your-render-service.onrender.com/ws`
+
+For your current frontend domain, use:
+
+- [https://volunteer-web-app-one.vercel.app](https://volunteer-web-app-one.vercel.app)
+
+## Render backend setup
+
+Create a Render Web Service from this same repo.
+
+Recommended settings:
+
+- Build Command: `npm ci`
+- Start Command: `npm start`
+- Health Check Path: `/api/health`
+
+Set these environment variables in Render:
+
+- `HOST=0.0.0.0`
+- `JWT_SECRET=<your-random-secret>`
+- `ALLOW_VERCEL_PREVIEWS=true`
+- `ALLOWED_ORIGINS=https://volunteer-web-app-one.vercel.app`
+
+Optional for local frontend access too:
+
+- `ALLOWED_ORIGINS=https://volunteer-web-app-one.vercel.app,http://127.0.0.1:4175,http://localhost:4175,http://127.0.0.1:4177,http://localhost:4177`
+
+## Important prototype note
+
+The backend currently stores data with `PGlite`.
+
+That means:
+
+- localhost works well
+- Render works for prototype behavior
+- data persistence on Render is not production-grade unless you attach persistent storage or move to hosted Postgres
+
+If you want stronger deployment persistence next, the best upgrade is:
+
+1. move backend data to Render Postgres or Supabase Postgres
+2. keep Render for API/WebSocket
+3. keep Vercel for frontend
+
+## Demo account
 
 - Email: `riya@volunteerconnect.org`
 - Password: `demo-access`
 
-Or create a new volunteer account from `/signup`.
+## Deployment behavior
 
-## Demo flow for submission
-
-1. Open the login page and sign in with the admin account
-2. Show the home page recommendations and live match percentages
-3. Open inbox and explain that chat is now connected through WebSockets
-4. Open profile and save a profile edit
-5. Open admin and show:
-   - community creation
-   - task creation
-   - survey intake
-   - NLP need extraction
-   - match scoreboard
-6. Create a new volunteer account from signup to show real auth and persistence
-
-## Internal ports
-
-- Combined backend + served app: `4177`
-- Vite frontend dev server: `4175`
+- When frontend and backend are on different domains, the frontend uses `VITE_API_BASE` and `VITE_WS_BASE`
+- When running locally on one URL, the backend can also serve the built frontend directly
+- The backend health endpoint is:
+  - `/api/health`

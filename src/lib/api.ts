@@ -7,7 +7,11 @@ import type {
 } from "../data/models";
 import { clearSession, getSession } from "./session";
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "/api";
+function trimTrailingSlash(value: string) {
+  return value.replace(/\/+$/, "");
+}
+
+const API_BASE = trimTrailingSlash(import.meta.env.VITE_API_BASE ?? "/api");
 
 function buildHeaders(headers?: HeadersInit) {
   const session = getSession();
@@ -145,7 +149,9 @@ export function submitSurvey(payload: { communityId: string; rawText: string }) 
 export function getSocketUrl() {
   const session = getSession();
   const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  const base = import.meta.env.VITE_WS_BASE ?? `${protocol}://${window.location.host}/ws`;
+  const base = trimTrailingSlash(
+    import.meta.env.VITE_WS_BASE ?? `${protocol}://${window.location.host}/ws`
+  );
   const token = session?.token ?? "";
   return `${base}?token=${encodeURIComponent(token)}`;
 }
