@@ -1,5 +1,5 @@
 export type NavItem = {
-  path: "/app" | "/app/chat" | "/app/profile";
+  path: "/app" | "/app/chat" | "/app/profile" | "/app/admin";
   label: string;
 };
 
@@ -22,6 +22,8 @@ export type VolunteerCard = {
   actionLabel: string;
   initials: string;
   accent: string;
+  matchScore?: number;
+  matchReasons?: string[];
 };
 
 export type TrendingTopic = {
@@ -37,6 +39,7 @@ export type FeaturedEventRole = {
 };
 
 export type FeaturedEvent = {
+  id?: string;
   title: string;
   category: string;
   date: string;
@@ -45,6 +48,8 @@ export type FeaturedEvent = {
   roleStats: FeaturedEventRole[];
   description: string;
   actions: string[];
+  matchScore?: number;
+  matchReasons?: string[];
 };
 
 export type ChatMessage = {
@@ -162,7 +167,68 @@ export type AppContent = {
 
 export type SessionUser = {
   token: string;
+  userId: string;
   email: string;
   name: string;
   role: string;
+  isAdmin: boolean;
+};
+
+export type ManagedCommunity = {
+  id: string;
+  name: string;
+  location: string;
+  description: string;
+  focusRole: string;
+  activeVolunteers: number;
+};
+
+export type ManagedTask = {
+  id: string;
+  title: string;
+  communityName: string;
+  needCategory: string;
+  urgencyScore: number;
+  description: string;
+  location: string;
+  eventDate: string;
+  timeRange: string;
+  skillsRequired: string[];
+  matchScore: number;
+};
+
+export type SurveyInsight = {
+  id: string;
+  communityName: string;
+  rawText: string;
+  parsedNeeds: {
+    categories: string[];
+    keywords: string[];
+    urgency: number;
+    summary: string;
+  };
+  createdAt: string;
+};
+
+export type MatchInsight = {
+  id: string;
+  volunteerName: string;
+  taskTitle: string;
+  communityName: string;
+  matchScore: number;
+  status: string;
+  reasons: string[];
+};
+
+export type AdminDashboard = {
+  stats: {
+    communities: number;
+    tasks: number;
+    surveys: number;
+    matches: number;
+  };
+  communities: ManagedCommunity[];
+  tasks: ManagedTask[];
+  surveys: SurveyInsight[];
+  matches: MatchInsight[];
 };

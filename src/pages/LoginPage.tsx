@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LockIcon, MailIcon } from "../components/icons";
 import { loginUser } from "../lib/api";
 import { saveSession } from "../lib/session";
@@ -21,7 +21,7 @@ export function LoginPage() {
       setIsSubmitting(true);
       setHelperMessage("Signing you in...");
       const session = await loginUser(email, password, rememberMe);
-      saveSession(session);
+      saveSession(session, rememberMe);
       setHelperMessage(`Welcome back, ${session.name}. Opening your dashboard now.`);
       navigate("/app");
     } catch (error) {
@@ -91,6 +91,12 @@ export function LoginPage() {
             >
               Forgot Password?
             </button>
+          </div>
+
+          <div className="login-row login-row-centered">
+            <Link className="login-link login-link-anchor" to="/signup">
+              Need a new volunteer account?
+            </Link>
           </div>
 
           <button className="login-button" type="submit" disabled={isSubmitting}>

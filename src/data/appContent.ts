@@ -3,7 +3,8 @@ import type { AppContent, NavItem } from "./models";
 export const navItems: NavItem[] = [
   { path: "/app", label: "Explore" },
   { path: "/app/chat", label: "Inbox" },
-  { path: "/app/profile", label: "Profile" }
+  { path: "/app/profile", label: "Profile" },
+  { path: "/app/admin", label: "Admin" }
 ];
 
 export const appContent: AppContent = {

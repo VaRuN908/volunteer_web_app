@@ -1,38 +1,32 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import {
-  HeartIcon,
-  ImageIcon,
-  SmileIcon
-} from "../components/icons";
+import { ImageIcon, SmileIcon } from "../components/icons";
 import { appContent } from "../data/appContent";
-import type { ChatMessage } from "../data/models";
-import { getChatContent, sendMessage } from "../lib/api";
+import { getChatContent, getSocketUrl, sendMessage } from "../lib/api";
+import { getSession } from "../lib/session";
 
-type ChannelFilter = "all" | "private" | "group" | "community";
-
-type Participant = {
-  id: string;
-  name: string;
-  initials: string;
-  accent: string;
+type SocketMessagePayload = {
+  type: "chat:message";
+  conversationId: string;
+  senderUserId: string;
+  snippet: string;
+  updatedLabel: string;
+  message: {
+    id: string;
+    body: string;
+    time: string;
+  };
 };
 
-function formatTime(date: Date) {
-  return new Intl.DateTimeFormat("en-US", {
-    hour: "numeric",
-    minute: "2-digit"
-  }).format(date);
-}
-
 export function ChatPage() {
-  const [chatData, setChatData] = useState(appContent.chat);
-  const { conversations, featuredRequest } = chatData;
-  const [activeTab, setActiveTab] = useState<"PRIMARY" | "GENERAL">("PRIMARY");
+  const [chatData, setChatData] = useState<typeof appContent.chat>(appContent.chat);
+  const { conversations } = chatData;
   const [selectedId, setSelectedId] = useState(conversations[1]?.id ?? conversations[0]?.id ?? "");
   const [draft, setDraft] = useState("");
   const [chatNotice, setChatNotice] = useState("");
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const socketRef = useRef<WebSocket | null>(null);
+  const session = getSession();
   
   useEffect(() => {
     async function loadChat() {
@@ -49,6 +43,70 @@ export function ChatPage() {
 
     void loadChat();
   }, []);
+
+  useEffect(() => {
+    const socket = new WebSocket(getSocketUrl());
+    socketRef.current = socket;
+
+    socket.addEventListener("open", () => {
+      setChatNotice("Realtime chat connected.");
+    });
+
+    socket.addEventListener("message", (event) => {
+      const payload = JSON.parse(event.data) as { type?: string };
+
+      if (payload.type !== "chat:message") {
+        return;
+      }
+
+      const messagePayload = payload as SocketMessagePayload;
+
+      setChatData((current) => {
+        const target = current.conversations.find(
+          (conversation) => conversation.id === messagePayload.conversationId
+        );
+
+        if (!target) {
+          return current;
+        }
+
+        const updatedConversation = {
+          ...target,
+          snippet: messagePayload.snippet,
+          time: messagePayload.updatedLabel,
+          messages: [
+            ...target.messages,
+            {
+              id: messagePayload.message.id,
+              author: (messagePayload.senderUserId === session?.userId ? "self" : "other") as
+                | "self"
+                | "other",
+              body: messagePayload.message.body,
+              time: messagePayload.message.time
+            }
+          ]
+        };
+
+        return {
+          ...current,
+          conversations: [
+            updatedConversation,
+            ...current.conversations.filter(
+              (conversation) => conversation.id !== messagePayload.conversationId
+            )
+          ]
+        };
+      });
+    });
+
+    socket.addEventListener("close", () => {
+      setChatNotice("Realtime chat disconnected. Refresh to reconnect.");
+    });
+
+    return () => {
+      socket.close();
+    };
+  }, [session?.userId]);
 
   const filteredConversations = useMemo(() => {
     return conversations;
@@ -74,33 +132,6 @@ export function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [selectedMessages]);
 
-  const participants: Participant[] = useMemo(() => {
-    if (!selectedConversation) {
-      return [];
-    }
-
-    return [
-      {
-        id: "participant-self",
-        name: appContent.profile.name,
-        initials: "RS",
-        accent: "linear-gradient(135deg, #c084fc, #6366f1)"
-      },
-      {
-        id: `participant-${selectedConversation.id}`,
-        name: selectedConversation.name,
-        initials: selectedConversation.initials,
-        accent: selectedConversation.accent
-      },
-      {
-        id: "participant-request",
-        name: featuredRequest.name,
-        initials: featuredRequest.initials,
-        accent: featuredRequest.accent
-      }
-    ];
-  }, [featuredRequest, selectedConversation]);
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -110,13 +141,29 @@ export function ChatPage() {
 
     try {
       setIsSending(true);
-      const updatedConversation = await sendMessage(selectedConversation.id, draft.trim());
-      setChatData((current) => ({
-        ...current,
-        conversations: current.conversations.map((conversation) =>
-          conversation.id === updatedConversation.id ? updatedConversation : conversation
-        )
-      }));
+      const nextBody = draft.trim();
+
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        socketRef.current.send(
+          JSON.stringify({
+            type: "chat:message",
+            conversationId: selectedConversation.id,
+            body: nextBody
+          })
+        );
+      } else {
+        const updatedConversation = await sendMessage(selectedConversation.id, nextBody);
+        setChatData((current) => ({
+          ...current,
+          conversations: [
+            updatedConversation,
+            ...current.conversations.filter(
+              (conversation) => conversation.id !== updatedConversation.id
+            )
+          ]
+        }));
+      }
+
       setDraft("");
       setChatNotice(`Message sent to ${selectedConversation.name}.`);
     } catch (error) {
@@ -180,6 +227,7 @@ export function ChatPage() {
 
       {selectedConversation ? (
         <section className="chat-console-stage">
+          {chatNotice ? <div className="page-feedback-banner chat-feedback-banner">{chatNotice}</div> : null}
           <div className="chat-console-thread">
             <div className="chat-console-date-divider">August 27, 2017 8:25 pm</div>
             {selectedMessages.map((message) => {

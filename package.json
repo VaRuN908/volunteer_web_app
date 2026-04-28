@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "api": "node server/prototype-server.mjs",
+    "api": "npm run build && node server/index.mjs",
+    "API": "npm run api",
+    "api:server": "node server/index.mjs",
     "build": "tsc -b && vite build",
     "preview": "vite preview"
   },

@@ -179,6 +179,9 @@ export function ExplorePage() {
                   <p>{card.tagline}</p>
 
                   <div className="home-card-meta">
+                    {typeof card.matchScore === "number" ? (
+                      <span>{card.matchScore}% prototype match</span>
+                    ) : null}
                     <span>{card.impact}</span>
                     <span>{card.availability}</span>
                   </div>
@@ -189,6 +192,9 @@ export function ExplorePage() {
                         {focusArea}
                       </span>
                     ))}
+                    {card.matchReasons?.[0] ? (
+                      <span className="soft-pill soft-pill-light">{card.matchReasons[0]}</span>
+                    ) : null}
                   </div>
 
                   <button
@@ -245,6 +251,9 @@ export function ExplorePage() {
                       <div>
                         <h5>{event.title}</h5>
                         <span>{event.category}</span>
+                        {typeof event.matchScore === "number" ? (
+                          <span>{event.matchScore}% match for your profile</span>
+                        ) : null}
                       </div>
                       <div className="home-feature-meta">
                         <span>{event.date}</span>

@@ -4,7 +4,17 @@ export default defineConfig({
     plugins: [react()],
     server: {
         host: "127.0.0.1",
-        port: 4175
+        port: 4175,
+        proxy: {
+            "/api": {
+                target: "http://127.0.0.1:4177",
+                changeOrigin: true
+            },
+            "/ws": {
+                target: "ws://127.0.0.1:4177",
+                ws: true
+            }
+        }
     },
     preview: {
         host: "127.0.0.1",

@@ -1,26 +1,33 @@
 import type { PropsWithChildren } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { appContent, navItems } from "../data/appContent";
 import {
   ChatIcon,
+  GridIcon,
   HomeIcon,
   ProfileIcon
 } from "./icons";
+import { logoutUser } from "../lib/api";
+import { clearSession, getSession } from "../lib/session";
 
 const navIcons = {
   "/app": HomeIcon,
   "/app/chat": ChatIcon,
-  "/app/profile": ProfileIcon
+  "/app/profile": ProfileIcon,
+  "/app/admin": GridIcon
 };
 
 const routeEyebrows = {
   "/app": "Volunteer Discovery",
   "/app/chat": "Live Coordination",
-  "/app/profile": "Volunteer Identity"
+  "/app/profile": "Volunteer Identity",
+  "/app/admin": "Community Management"
 } as const;
 
 export function AppShell({ children }: PropsWithChildren) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const session = getSession();
   const routeVariant =
     location.pathname === "/app"
       ? "home"
@@ -28,7 +35,9 @@ export function AppShell({ children }: PropsWithChildren) {
         ? "chat"
         : location.pathname === "/app/profile"
           ? "profile"
-        : "default";
+          : location.pathname === "/app/admin"
+            ? "home"
+          : "default";
   const eyebrow =
     routeEyebrows[location.pathname as keyof typeof routeEyebrows] ??
     appContent.shell.tagline;
@@ -80,6 +89,7 @@ export function AppShell({ children }: PropsWithChildren) {
         : routeVariant === "profile"
           ? "screen-content screen-content-profile"
         : "screen-content";
+  const visibleNavItems = session?.isAdmin ? navItems : navItems.filter((item) => item.path !== "/app/admin");
 
   return (
     <div className={shellClassName}>
@@ -96,7 +106,7 @@ export function AppShell({ children }: PropsWithChildren) {
                 <strong>{appContent.shell.title}</strong>
               </div>
 
-              {navItems.map((item) => {
+              {visibleNavItems.map((item) => {
                 const Icon = navIcons[item.path];
 
                 return (
@@ -114,6 +124,24 @@ export function AppShell({ children }: PropsWithChildren) {
                   </NavLink>
                 );
               })}
+
+              <button
+                className="nav-item nav-item-logout"
+                type="button"
+                onClick={async () => {
+                  try {
+                    await logoutUser();
+                  } catch {
+                    // Prototype logout should still succeed locally even if the request fails.
+                  } finally {
+                    clearSession();
+                    navigate("/login");
+                  }
+                }}
+              >
+                <span className="nav-icon-wrap">X</span>
+                <span>Logout</span>
+              </button>
             </nav>
 
             <div className={mainClassName}>

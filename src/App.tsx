@@ -5,6 +5,8 @@ import { ChatPage } from "./pages/ChatPage";
 import { ExplorePage } from "./pages/ExplorePage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { SignupPage } from "./pages/SignupPage";
+import { AdminPage } from "./pages/AdminPage";
 
 function ShellLayout() {
   return (
@@ -26,10 +28,15 @@ export default function App() {
         path="/login"
         element={hasSession() ? <Navigate to="/app" replace /> : <LoginPage />}
       />
+      <Route
+        path="/signup"
+        element={hasSession() ? <Navigate to="/app" replace /> : <SignupPage />}
+      />
       <Route path="/app" element={<ProtectedShellLayout />}>
         <Route index element={<ExplorePage />} />
         <Route path="chat" element={<ChatPage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="admin" element={<AdminPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
