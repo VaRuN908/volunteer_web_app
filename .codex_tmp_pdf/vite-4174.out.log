@@ -1,0 +1,32 @@
+
+> volunteer-app@0.0.0 dev
+> vite
+
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m363[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4174[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[2m4:29:30 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx, /src/pages/ChatPage.tsx, /src/pages/ProfilePage.tsx, /src/pages/ExplorePage.tsx[22m
+[2m4:33:14 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx[22m
+[2m4:33:19 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ExplorePage.tsx[22m
+[2m4:33:59 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ExplorePage.tsx[22m
+[2m4:35:51 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m4:36:14 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m4:37:44 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m6:16:52 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m6:21:43 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m6:39:26 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx[22m
+[2m6:40:04 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/icons.tsx[22m
+[2m6:40:04 pm[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/components/icons.tsx[22m Could not Fast Refresh (new export)
+[2m6:40:04 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx, /src/pages/LoginPage.tsx, /src/pages/ChatPage.tsx, /src/pages/ProfilePage.tsx, /src/pages/ExplorePage.tsx[22m
+[2m6:40:18 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.tsx[22m
+[2m6:41:13 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.tsx[22m
+[2m6:43:45 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m6:44:32 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m6:45:26 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx[22m
+[2m6:51:27 pm[22m [36m[1m[vite][22m[39m [32mvite.config.js changed, restarting server...[39m
+Port 4175 is in use, trying another one...
+[2m6:51:27 pm[22m [36m[1m[vite][22m[39m server restarted.
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4176[22m/[39m

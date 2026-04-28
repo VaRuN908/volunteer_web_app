@@ -1,0 +1,36 @@
+
+> volunteer-app@0.0.0 dev
+> vite --host 127.0.0.1 --port 4173
+
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m600[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4173[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[2m2:17:56 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx, /src/pages/ProfilePage.tsx, /src/pages/ChatPage.tsx, /src/pages/ExplorePage.tsx[22m
+[2m2:17:56 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ExplorePage.tsx[22m
+[2m2:17:57 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m2:27:34 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m2:32:57 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:45:14 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx[22m
+[2m3:45:14 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ExplorePage.tsx[22m
+[2m3:45:14 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.tsx[22m
+[2m3:45:14 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ProfilePage.tsx[22m
+[2m3:45:41 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:52:28 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx[22m
+[2m3:56:03 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:56:45 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx[22m
+[2m3:58:08 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:59:22 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx[22m
+[2m3:59:34 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m4:06:16 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/icons.tsx[22m
+[2m4:06:16 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m4:06:44 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m4:14:07 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx, /src/pages/ProfilePage.tsx, /src/pages/ChatPage.tsx, /src/pages/ExplorePage.tsx[22m
+[2m4:14:07 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AppShell.tsx[22m
+[2m4:14:07 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/LoginPage.tsx[22m
+[2m4:14:07 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx[22m
+[2m4:14:21 pm[22m [36m[1m[vite][22m[39m [32mvite.config.js changed, restarting server...[39m
+[2m4:14:21 pm[22m [36m[1m[vite][22m[39m server restarted.
+[2m6:51:27 pm[22m [36m[1m[vite][22m[39m [32mvite.config.js changed, restarting server...[39m
+[2m6:51:27 pm[22m [36m[1m[vite][22m[39m server restarted.
