@@ -124,6 +124,7 @@ export type AppContent = {
     categories: CategoryChip[];
     featuredEvents: FeaturedEvent[];
     suggested: VolunteerCard[];
+    connectedCardIds?: string[];
     spotlight: {
       title: string;
       description: string;
@@ -157,4 +158,11 @@ export type AppContent = {
     collaborations: CollaborationItem[];
     supportLinks: string[];
   };
+};
+
+export type SessionUser = {
+  token: string;
+  email: string;
+  name: string;
+  role: string;
 };

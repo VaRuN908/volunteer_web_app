@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   HeartIcon,
   ImageIcon,
@@ -6,6 +6,7 @@ import {
 } from "../components/icons";
 import { appContent } from "../data/appContent";
 import type { ChatMessage } from "../data/models";
+import { getChatContent, sendMessage } from "../lib/api";
 
 type ChannelFilter = "all" | "private" | "group" | "community";
 
@@ -24,17 +25,30 @@ function formatTime(date: Date) {
 }
 
 export function ChatPage() {
-  const { conversations, featuredRequest } = appContent.chat;
+  const [chatData, setChatData] = useState(appContent.chat);
+  const { conversations, featuredRequest } = chatData;
   const [activeTab, setActiveTab] = useState<"PRIMARY" | "GENERAL">("PRIMARY");
   const [selectedId, setSelectedId] = useState(conversations[1]?.id ?? conversations[0]?.id ?? "");
   const [draft, setDraft] = useState("");
   const [chatNotice, setChatNotice] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [messageStore, setMessageStore] = useState<Record<string, ChatMessage[]>>(() =>
-    Object.fromEntries(
-      conversations.map((conversation) => [conversation.id, [...conversation.messages]])
-    )
-  );
+  
+  useEffect(() => {
+    async function loadChat() {
+      try {
+        const data = await getChatContent();
+        setChatData(data);
+        setSelectedId(data.conversations[1]?.id ?? data.conversations[0]?.id ?? "");
+      } catch (error) {
+        setChatNotice(
+          error instanceof Error ? error.message : "Using local chat data because the API is unavailable."
+        );
+      }
+    }
+
+    void loadChat();
+  }, []);
 
   const filteredConversations = useMemo(() => {
     return conversations;
@@ -54,9 +68,7 @@ export function ChatPage() {
     filteredConversations[0] ??
     null;
 
-  const selectedMessages = selectedConversation
-    ? messageStore[selectedConversation.id] ?? []
-    : [];
+  const selectedMessages = selectedConversation?.messages ?? [];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -89,26 +101,29 @@ export function ChatPage() {
     ];
   }, [featuredRequest, selectedConversation]);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!selectedConversation || draft.trim().length === 0) {
       return;
     }
 
-    const newMessage: ChatMessage = {
-      id: `${selectedConversation.id}-${Date.now()}`,
-      author: "self",
-      body: draft.trim(),
-      time: formatTime(new Date())
-    };
-
-    setMessageStore((currentStore) => ({
-      ...currentStore,
-      [selectedConversation.id]: [...(currentStore[selectedConversation.id] ?? []), newMessage]
-    }));
-    setDraft("");
-    setChatNotice(`Message sent to ${selectedConversation.name}.`);
+    try {
+      setIsSending(true);
+      const updatedConversation = await sendMessage(selectedConversation.id, draft.trim());
+      setChatData((current) => ({
+        ...current,
+        conversations: current.conversations.map((conversation) =>
+          conversation.id === updatedConversation.id ? updatedConversation : conversation
+        )
+      }));
+      setDraft("");
+      setChatNotice(`Message sent to ${selectedConversation.name}.`);
+    } catch (error) {
+      setChatNotice(error instanceof Error ? error.message : "Could not send your message.");
+    } finally {
+      setIsSending(false);
+    }
   }
 
   return (
@@ -149,10 +164,10 @@ export function ChatPage() {
               </div>
 
               <div className="chat-console-list-copy">
-                <strong>{conversation.name.toLowerCase().replace(/\s/g, '')}</strong>
-                <p>{conversation.snippet} &bull; {conversation.time}</p>
-              </div>
-            </button>
+                    <strong>{conversation.name}</strong>
+                    <p>{conversation.snippet} &bull; {conversation.time}</p>
+                  </div>
+                </button>
           ))}
 
           {filteredConversations.length === 0 && (
@@ -217,11 +232,11 @@ export function ChatPage() {
             </button>
 
             <button
-              className="chat-console-tool-button"
-              type="button"
-              aria-label="Send a heart"
+              className="chat-console-send-button"
+              type="submit"
+              disabled={isSending || draft.trim().length === 0}
             >
-              <HeartIcon className="small-icon" />
+              {isSending ? "Sending..." : "Send"}
             </button>
           </form>
         </section>

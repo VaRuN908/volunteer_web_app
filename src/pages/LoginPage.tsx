@@ -1,20 +1,34 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LockIcon, MailIcon } from "../components/icons";
+import { loginUser } from "../lib/api";
+import { saveSession } from "../lib/session";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [helperMessage, setHelperMessage] = useState(
     "Use your account details to enter the volunteer dashboard."
   );
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setHelperMessage(`Welcome back${email ? `, ${email}` : ""}. Opening your dashboard now.`);
-    navigate("/app");
+
+    try {
+      setIsSubmitting(true);
+      setHelperMessage("Signing you in...");
+      const session = await loginUser(email, password, rememberMe);
+      saveSession(session);
+      setHelperMessage(`Welcome back, ${session.name}. Opening your dashboard now.`);
+      navigate("/app");
+    } catch (error) {
+      setHelperMessage(error instanceof Error ? error.message : "Login failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -79,8 +93,8 @@ export function LoginPage() {
             </button>
           </div>
 
-          <button className="login-button" type="submit">
-            Login
+          <button className="login-button" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Logging in..." : "Login"}
           </button>
         </form>
 

@@ -1,10 +1,12 @@
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SearchIcon, LockIcon } from "../components/icons";
+import { SearchIcon } from "../components/icons";
 import { appContent } from "../data/appContent";
+import { getExploreContent, toggleSuggestedConnection } from "../lib/api";
 
 export function ExplorePage() {
   const navigate = useNavigate();
+  const [exploreData, setExploreData] = useState(appContent.explore);
   const {
     categories,
     featuredEvents,
@@ -14,12 +16,39 @@ export function ExplorePage() {
     subheading,
     suggested,
     trending
-  } = appContent.explore;
+  } = exploreData;
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>(categories[0]?.id ?? "");
   const [selectedAction, setSelectedAction] = useState("Ready to match volunteers with the right opportunity.");
-  const [connectedCards, setConnectedCards] = useState<string[]>([]);
+  const [connectedCards, setConnectedCards] = useState<string[]>(exploreData.connectedCardIds ?? []);
   const deferredQuery = useDeferredValue(query);
+
+  useEffect(() => {
+    async function loadExplore() {
+      try {
+        const data = await getExploreContent();
+        setExploreData(data);
+        setConnectedCards(data.connectedCardIds ?? []);
+        if (!activeCategory && data.categories[0]?.id) {
+          setActiveCategory(data.categories[0].id);
+        }
+      } catch (error) {
+        setSelectedAction(
+          error instanceof Error
+            ? error.message
+            : "Using local prototype data because the API is unavailable."
+        );
+      }
+    }
+
+    void loadExplore();
+  }, []);
+
+  useEffect(() => {
+    if (!categories.some((category) => category.id === activeCategory)) {
+      setActiveCategory(categories[0]?.id ?? "");
+    }
+  }, [activeCategory, categories]);
 
   const normalizedQuery = deferredQuery.trim().toLowerCase();
   const filteredCards = useMemo(() => {
@@ -57,13 +86,16 @@ export function ExplorePage() {
     }
   }
 
-  function handleConnect(cardId: string, cardName: string) {
-    setConnectedCards((current) =>
-      current.includes(cardId)
-        ? current.filter((item) => item !== cardId)
-        : [...current, cardId]
-    );
-    setSelectedAction(`Updated connection status for ${cardName}.`);
+  async function handleConnect(cardId: string, cardName: string) {
+    try {
+      const response = await toggleSuggestedConnection(cardId);
+      setConnectedCards(response.connectedCardIds);
+      setSelectedAction(`Updated connection status for ${cardName}.`);
+    } catch (error) {
+      setSelectedAction(
+        error instanceof Error ? error.message : "Could not update this volunteer connection."
+      );
+    }
   }
 
   return (

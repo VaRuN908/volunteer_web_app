@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   EditIcon,
   HelpIcon,
@@ -7,6 +7,7 @@ import {
   ShieldIcon
 } from "../components/icons";
 import { appContent } from "../data/appContent";
+import { getProfileContent, updateProfile } from "../lib/api";
 
 const supportIconMap = {
   Settings: SettingsIcon,
@@ -15,10 +16,11 @@ const supportIconMap = {
 };
 
 export function ProfilePage() {
-  const profile = appContent.profile;
+  const [profile, setProfile] = useState(appContent.profile);
   const [search, setSearch] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [activeSupportLink, setActiveSupportLink] = useState(profile.supportLinks[0] ?? "");
+  const [isSaving, setIsSaving] = useState(false);
   const [editableProfile, setEditableProfile] = useState({
     name: profile.name,
     role: profile.role,
@@ -36,6 +38,44 @@ export function ProfilePage() {
   const filteredCollaborations = profile.collaborations.filter((item) =>
     [item.title, item.subtitle, item.meta, item.status].join(" ").toLowerCase().includes(normalizedSearch)
   );
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const data = await getProfileContent();
+        setProfile(data);
+        setEditableProfile({
+          name: data.name,
+          role: data.role,
+          about: data.about
+        });
+        setActiveSupportLink(data.supportLinks[0] ?? "");
+      } catch (error) {
+        setProfileNotice(
+          error instanceof Error ? error.message : "Using local profile data because the API is unavailable."
+        );
+      }
+    })();
+  }, []);
+
+  async function handleSaveProfile() {
+    try {
+      setIsSaving(true);
+      const updatedProfile = await updateProfile(editableProfile);
+      setProfile(updatedProfile);
+      setEditableProfile({
+        name: updatedProfile.name,
+        role: updatedProfile.role,
+        about: updatedProfile.about
+      });
+      setEditMode(false);
+      setProfileNotice("Profile saved successfully.");
+    } catch (error) {
+      setProfileNotice(error instanceof Error ? error.message : "Could not save your profile.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   return (
     <div className="profile-simple">
@@ -61,13 +101,33 @@ export function ProfilePage() {
             className="profile-simple-edit"
             type="button"
             onClick={() => {
-              setEditMode((current) => !current);
-              setProfileNotice(editMode ? "Edit mode closed." : "Edit mode opened for your profile.");
+              if (editMode) {
+                setEditableProfile({
+                  name: profile.name,
+                  role: profile.role,
+                  about: profile.about
+                });
+                setEditMode(false);
+                setProfileNotice("Edit mode closed.");
+                return;
+              }
+
+              setEditMode(true);
+              setProfileNotice("Edit mode opened for your profile.");
             }}
           >
             <EditIcon className="small-icon" />
             <span>{editMode ? "Close Edit" : "Edit Profile"}</span>
           </button>
+          {editMode ? (
+            <button
+              className="profile-simple-edit"
+              type="button"
+              onClick={() => void handleSaveProfile()}
+            >
+              <span>{isSaving ? "Saving..." : "Save Changes"}</span>
+            </button>
+          ) : null}
         </div>
       </header>
 
